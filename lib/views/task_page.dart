@@ -139,8 +139,10 @@ class _MySchedulePageState extends State<MySchedulePage>
             icon: const Icon(Icons.logout),
             onPressed: () {
               //logout firebase
-              FirebaseAuthService().signOut();
-              Navigator.of(navigatorKey!.currentContext!).pushNamed('/login');
+              FirebaseAuthService().signOut().whenComplete(
+                    () => Navigator.of(navigatorKey!.currentContext!)
+                        .pushNamed('/login'),
+                  );
             },
           ),
         ],
