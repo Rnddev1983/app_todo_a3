@@ -133,10 +133,12 @@ class _SignUpState extends State<SignUp> {
                         margin: const EdgeInsets.only(top: 37),
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_formKey.currentState!.validate()) {
+                            if (!_formKey.currentState!.validate()) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                      content: Text('Processing Data')));
+                                      content: Text(
+                                          'Preencha os campos corretamente')));
+                              return;
                             }
                             firebaseAuthService
                                 .createUserWithEmailAndPassword(
