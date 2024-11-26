@@ -1,9 +1,9 @@
 class Tasks {
-  final int id;
-  final String title;
-  final String description;
-  final bool isDone;
-  final String data;
+  int? id;
+  String title;
+  String description;
+  bool isDone;
+  String data;
 
   Tasks({
     required this.id,

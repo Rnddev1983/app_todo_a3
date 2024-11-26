@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list/configs/routes_config.dart';
+import 'package:todo_list/models/tasks.dart';
 import 'package:todo_list/services/firebase_auth.dart';
+import 'package:todo_list/services/sqlite_service.dart';
 
 void main() => runApp(const TaskPage());
 
@@ -31,14 +33,26 @@ class _MySchedulePageState extends State<MySchedulePage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  SQLiteService sqliteService = SQLiteService();
+
   // Listas de tarefas
-  List<String> todoTasks = [];
-  List<String> doneTasks = [];
+  List<Tasks> todoTasks = [];
+  List<Tasks> doneTasks = [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _setListTasks();
+  }
+
+  void _setListTasks() {
+    sqliteService.tasks().then((tasks) {
+      setState(() {
+        todoTasks = tasks.where((task) => !task.isDone).toList();
+        doneTasks = tasks.where((task) => task.isDone).toList();
+      });
+    });
   }
 
   @override
@@ -48,18 +62,24 @@ class _MySchedulePageState extends State<MySchedulePage>
   }
 
   // Adiciona uma nova tarefa
-  void _addTask(String task) {
-    if (task.isNotEmpty) {
-      setState(() {
-        todoTasks.add(task);
-      });
-    }
+  void _addTask(Tasks task) {
+    setState(() {
+      // todoTasks.add(task);
+      sqliteService.insertTask(task);
+    });
   }
 
   // Move uma tarefa para "DONE"
   void _markAsDone(int index) {
     setState(() {
-      String completedTask = todoTasks.removeAt(index);
+      try {
+        Tasks completedTask = todoTasks[index];
+        completedTask.isDone = true;
+        sqliteService.updateTask(completedTask);
+      } catch (e) {
+        print(e);
+      }
+      Tasks completedTask = todoTasks.removeAt(index);
       doneTasks.add(completedTask);
     });
   }
@@ -84,7 +104,16 @@ class _MySchedulePageState extends State<MySchedulePage>
             ),
             ElevatedButton(
               onPressed: () {
-                _addTask(taskController.text);
+                Tasks task = Tasks(
+                  id: null,
+                  title: taskController.text,
+                  isDone: false,
+                  description: 'Teste de descricao',
+                  data: DateTime.now().timeZoneName,
+                );
+                setState(() {
+                  _addTask(task);
+                });
                 Navigator.of(context).pop();
               },
               child: const Text("Add"),
@@ -100,9 +129,9 @@ class _MySchedulePageState extends State<MySchedulePage>
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
-        title: const Text(
-          "My Schedule",
-          style: TextStyle(fontFamily: "Cursive"),
+        title: Image.asset(
+          'assets/images/my_schedule_white.png',
+          width: 100,
         ),
         // Botão de logout
         actions: [
@@ -115,6 +144,10 @@ class _MySchedulePageState extends State<MySchedulePage>
             },
           ),
         ],
+        leading: IconButton(
+          icon: const Icon(Icons.list, color: Colors.white, size: 40),
+          onPressed: () {},
+        ),
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
@@ -135,7 +168,7 @@ class _MySchedulePageState extends State<MySchedulePage>
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                 child: ListTile(
                   leading: const Icon(Icons.task_alt, color: Colors.blueAccent),
-                  title: Text(todoTasks[index]),
+                  title: Text(todoTasks[index].title),
                   trailing: IconButton(
                     icon: const Icon(Icons.check, color: Colors.green),
                     onPressed: () => _markAsDone(index),
@@ -153,7 +186,7 @@ class _MySchedulePageState extends State<MySchedulePage>
                 child: ListTile(
                   leading: const Icon(Icons.done, color: Colors.green),
                   title: Text(
-                    doneTasks[index],
+                    doneTasks[index].title,
                     style:
                         const TextStyle(decoration: TextDecoration.lineThrough),
                   ),
