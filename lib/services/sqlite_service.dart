@@ -20,13 +20,15 @@ class SQLiteService {
     );
   })();
 
-  Future<void> insertTask(Tasks task) async {
+  Future<int> insertTask(Tasks task) async {
     final db = await database;
-    await db.insert(
+    int taskId = await db.insert(
       'tasks',
       task.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    print('Task inserted with id: $taskId');
+    return taskId;
   }
 
   Future<List<Tasks>> tasks() async {
@@ -37,7 +39,29 @@ class SQLiteService {
     });
   }
 
+  Future<Tasks> getTaskById(int id) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'tasks',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    return Tasks.fromMap(maps.first);
+  }
+
   Future<void> updateTask(Tasks task) async {
+    if (task.id == null) {
+      throw Exception('Task id is null');
+    }
+
+    int id = task.id!;
+
+    Tasks existingTask = await getTaskById(id);
+
+    if (existingTask.id == null) {
+      throw Exception('Task not found');
+    }
+
     final db = await database;
     await db.update(
       'tasks',

@@ -34,8 +34,8 @@ class NotificationService {
 
   Future<void> _setupTimezone() async {
     tz.initializeTimeZones();
-    final String? timeZoneName = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timeZoneName!));
+    final String timeZoneName = await FlutterTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timeZoneName));
   }
 
   _initializeNotifications() async {
@@ -47,14 +47,22 @@ class NotificationService {
       ),
       onDidReceiveNotificationResponse:
           (NotificationResponse notificationResponse) {
-        _onSelectNotification(notificationResponse.payload);
+        _onSelectNotification(notificationResponse);
+      },
+      onDidReceiveBackgroundNotificationResponse:
+          (NotificationResponse notificationResponse) {
+        _onSelectNotification(notificationResponse);
       },
     );
   }
 
-  _onSelectNotification(String? payload) {
-    if (payload != null && payload.isNotEmpty) {
-      Navigator.of(navigatorKey!.currentContext!).pushNamed(payload);
+  _onSelectNotification(NotificationResponse? notificationResponse) {
+    if (notificationResponse != null && notificationResponse!.payload != null) {
+      print(
+          'Payload: ${notificationResponse!.payload}-${notificationResponse!.id}---------------------------------------------------------------');
+      Navigator.of(navigatorKey!.currentContext!).pushNamed(
+          notificationResponse.payload!,
+          arguments: notificationResponse.id);
     }
   }
 
@@ -89,11 +97,26 @@ class NotificationService {
     );
   }
 
+  cancelNotification(int id) {
+    localNotificationsPlugin.cancel(id);
+  }
+
   checkForNotifications() async {
     final details =
         await localNotificationsPlugin.getNotificationAppLaunchDetails();
     if (details != null && details.didNotificationLaunchApp) {
-      _onSelectNotification(details.notificationResponse?.payload);
+      _onSelectNotification(details.notificationResponse!);
+    }
+  }
+
+  showNotificationIfTimeIsNow(
+      CustomNotification notification, Duration duration) {
+    final date = DateTime.now().add(duration);
+    final now = DateTime.now();
+    if (duration.inSeconds > 0 && date.isAfter(now)) {
+      showNotificationScheduled(notification, duration);
+    } else {
+      showLocalNotification(notification);
     }
   }
 }

@@ -45,8 +45,7 @@ class _LoginPageState extends State<LoginPage> {
                     image: AssetImage('assets/images/my_schedule.png')),
               ),
               Container(
-                  width: 320,
-                  height: 362,
+                  width: 300,
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(7)),
                     border:
@@ -158,14 +157,14 @@ class _LoginPageState extends State<LoginPage> {
                             TextButton(
                               onPressed: () {
                                 Navigator.pushNamed(context, '/sign-up');
-                                CustomNotification notificationService =
-                                    CustomNotification(
-                                        id: 1,
-                                        title: 'Teste',
-                                        body: 'Notificando',
-                                        payload: '/sign-up');
-                                NotificationService()
-                                    .showLocalNotification(notificationService);
+                                // CustomNotification notificationService =
+                                //     CustomNotification(
+                                //         id: 1,
+                                //         title: 'Teste',
+                                //         body: 'Notificando',
+                                //         payload: '/sign-up');
+                                // NotificationService()
+                                //     .showLocalNotification(notificationService);
                               },
                               child: const Text('Sign up'),
                             ),

@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:todo_list/configs/routes_config.dart';
 import 'package:todo_list/services/firebase_auth.dart';
 
 class SignUp extends StatefulWidget {
@@ -52,7 +54,7 @@ class _SignUpState extends State<SignUp> {
                         controller: emailController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter some text';
+                            return 'Preencha o campo';
                           }
                           //validate email
                           if (!value.contains('@')) {
@@ -79,7 +81,7 @@ class _SignUpState extends State<SignUp> {
                         obscureText: true,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter some text';
+                            return 'Preencha o campo';
                           }
 
                           if (value.length < 6) {
@@ -103,7 +105,7 @@ class _SignUpState extends State<SignUp> {
                         controller: checkPasswordController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter some text';
+                            return 'Preecnha o campo';
                           }
 
                           if (value.length < 6) {
@@ -117,6 +119,7 @@ class _SignUpState extends State<SignUp> {
                         },
                         style: textStyle,
                         textAlign: TextAlign.center,
+                        obscureText: true,
                         decoration: InputDecoration(
                           hintText: 'Confirmar senha',
                           fillColor: Color.fromRGBO(118, 182, 255, 1),
@@ -131,26 +134,44 @@ class _SignUpState extends State<SignUp> {
                       Container(
                         width: 300,
                         margin: const EdgeInsets.only(top: 37),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (!_formKey.currentState!.validate()) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text(
-                                          'Preencha os campos corretamente')));
-                              return;
-                            }
-                            firebaseAuthService
-                                .createUserWithEmailAndPassword(
-                                    emailController.text,
-                                    passwordController.text)
-                                .catchError((error) {
-                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                  content: Text(
-                                      'Preencha as informações corretamente')));
-                            });
-                          },
-                          child: const Text('Sign Up'),
+                        child: Column(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                if (!_formKey.currentState!.validate()) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              'Preencha os campos corretamente')));
+                                  return;
+                                }
+                                Future<UserCredential> user =
+                                    firebaseAuthService
+                                        .createUserWithEmailAndPassword(
+                                            emailController.text,
+                                            passwordController.text)
+                                        .catchError((error) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content: Text(
+                                              'Preencha as informações corretamente')));
+                                });
+                                user.then((value) {
+                                  if (value.user != null) {
+                                    Navigator.of(context).pushNamed('/task');
+                                  }
+                                });
+                              },
+                              child: const Text('Cadastrar'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(navigatorKey!.currentContext!)
+                                    .pushNamed('/login');
+                              },
+                              child: const Text('Já tem uma conta? Faça login'),
+                            )
+                          ],
                         ),
                       )
                     ],
