@@ -96,94 +96,102 @@ class _MySchedulePageState extends State<TaskPage>
     showDialog(
       context: context,
       builder: (context) {
+        final _formKey = GlobalKey<FormState>();
         return SingleChildScrollView(
           child: StatefulBuilder(
             builder: (context, setState) => AlertDialog(
               title: const Text("Adicionar tarefa"),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: taskController,
-                    decoration: const InputDecoration(hintText: "Titulo"),
-                  ),
-                  TextField(
-                    controller: description,
-                    decoration: const InputDecoration(
-                      hintText: "Descrição",
+              content: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: taskController,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Preencha o campo' : null,
+                      decoration: const InputDecoration(hintText: "Titulo"),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  SizedBox(
-                    height: 200,
-                    width: 200,
-                    child: EasyDateTimeLinePicker(
-                      focusedDate: selectedDate,
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 30)),
-                      onDateChange: (date) {
-                        //state não muda
-                        setState(() {
-                          selectedDate = date;
-                        });
-
-                        // Print the selected date.
-
-                        print(selectedDate);
-                      },
+                    TextFormField(
+                      controller: description,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Preencha o campo' : null,
+                      decoration: const InputDecoration(
+                        hintText: "Descrição",
+                      ),
                     ),
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      const Text("Hora: "),
-                      SizedBox(
-                        width: 100,
-                        child: DropdownButton<int>(
-                          menuWidth: 100,
-                          value: selectedHour,
-                          onChanged: (int? newValue) {
-                            setState(() {
-                              selectedHour = newValue!;
-                            });
-                          },
-                          items: List<DropdownMenuItem<int>>.generate(
-                            24,
-                            (int index) {
-                              return DropdownMenuItem<int>(
-                                value: index,
-                                child: Text('$index'),
-                              );
+                    SizedBox(height: 10),
+                    SizedBox(
+                      height: 200,
+                      width: 200,
+                      child: EasyDateTimeLinePicker(
+                        focusedDate: selectedDate,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime.now().add(const Duration(days: 30)),
+                        onDateChange: (date) {
+                          //state não muda
+                          setState(() {
+                            selectedDate = date;
+                          });
+
+                          // Print the selected date.
+
+                          print(selectedDate);
+                        },
+                      ),
+                    ),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        const Text("Hora: "),
+                        SizedBox(
+                          width: 50,
+                          child: DropdownButton<int>(
+                            menuWidth: 100,
+                            value: selectedHour,
+                            onChanged: (int? newValue) {
+                              setState(() {
+                                selectedHour = newValue!;
+                              });
                             },
+                            items: List<DropdownMenuItem<int>>.generate(
+                              24,
+                              (int index) {
+                                return DropdownMenuItem<int>(
+                                  value: index,
+                                  child: Text('$index'),
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                      Text('Minutos: '),
-                      SizedBox(
-                        width: 100,
-                        child: DropdownButton<int>(
-                          menuWidth: 100,
-                          value: selectedMinute,
-                          onChanged: (int? newValue) {
-                            setState(() {
-                              selectedMinute = newValue!;
-                            });
-                          },
-                          items: List<DropdownMenuItem<int>>.generate(
-                            60,
-                            (int index) {
-                              return DropdownMenuItem<int>(
-                                value: index,
-                                child: Text('$index'),
-                              );
+                        Text('Minutos: '),
+                        SizedBox(
+                          width: 50,
+                          child: DropdownButton<int>(
+                            menuWidth: 100,
+                            value: selectedMinute,
+                            onChanged: (int? newValue) {
+                              setState(() {
+                                selectedMinute = newValue!;
+                              });
                             },
+                            items: List<DropdownMenuItem<int>>.generate(
+                              60,
+                              (int index) {
+                                return DropdownMenuItem<int>(
+                                  value: index,
+                                  child: Text('$index'),
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -192,6 +200,11 @@ class _MySchedulePageState extends State<TaskPage>
                 ),
                 ElevatedButton(
                   onPressed: () async {
+                    if (!_formKey.currentState!.validate()) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Preencha os campos')));
+                      return;
+                    }
                     Tasks task = Tasks(
                       id: null,
                       title: taskController.text,
