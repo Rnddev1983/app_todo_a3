@@ -381,17 +381,26 @@ class _MySchedulePageState extends State<TaskPage>
             itemCount: doneTasks.length,
             itemBuilder: (context, index) {
               return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: ListTile(
-                  leading: const Icon(Icons.done, color: Colors.green),
-                  title: Text(
-                    doneTasks[index].title,
-                    style:
-                        const TextStyle(decoration: TextDecoration.lineThrough),
-                  ),
-                  subtitle: Text(doneTasks[index].description),
-                ),
-              );
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: ListTile(
+                    leading: const Icon(Icons.done, color: Colors.green),
+                    title: Text(
+                      doneTasks[index].title,
+                      style: const TextStyle(
+                          decoration: TextDecoration.lineThrough),
+                    ),
+                    subtitle: Text(doneTasks[index].description),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        _deleteTaskById(doneTasks[index].id!);
+                        setState(() {
+                          doneTasks.removeAt(index);
+                        });
+                      },
+                    ),
+                  ));
             },
           ),
         ],

@@ -20,9 +20,9 @@ class FirebaseAuthService {
 
   Future<void> signInWithEmailAndPassword(String email, String password) async {
     try {
-      _firebaseAuth
-          .signInWithEmailAndPassword(email: email, password: password)
-          .then((value) => print(value.user!));
+      Future<UserCredential> user = _firebaseAuth.signInWithEmailAndPassword(
+          email: email, password: password);
+      user.then((value) => print('User: ${value.user!.email}'));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         if (kDebugMode) {

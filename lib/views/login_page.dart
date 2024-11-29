@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list/commons/validates.dart';
+import 'package:todo_list/configs/routes_config.dart';
 import 'package:todo_list/models/custom_notification.dart';
 import 'package:todo_list/services/firebase_auth.dart';
 import 'package:todo_list/services/local_notification.dart';
@@ -21,7 +22,9 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     firebaseAuthService.authStateChanges.listen((user) {
       if (user != null) {
-        Navigator.pushNamed(context, '/task');
+        Navigator.of(
+          navigatorKey!.currentContext!,
+        ).pushNamed('/task');
       }
     });
 
