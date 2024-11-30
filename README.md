@@ -1,4 +1,12 @@
 # todo_list
+Equipe:
+
+Iago Luiz Simplício Serra – RA 1272320678
+Igor Henrique – RA 323210810
+Janílson Coimbra da Purificação - RA 12723213638
+Joyce Mendonça Paixão – RA 323212772
+Ronildo Santos da Silva – RA 823226546
+Victor Inocêncio Torres - RA 824213703
 
 A new Flutter project.
 
